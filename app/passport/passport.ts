@@ -1,14 +1,15 @@
 import bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import User from '../models/user';
+import {PassportStatic} from "passport";
 
-export default function(passport) {
-  passport.serializeUser((user, done)=> {
+export default function(passport: PassportStatic) {
+  passport.serializeUser((user: any, done)=> {
     done(null, user._id);
   });
 
   passport.deserializeUser((id, done)=> {
-    User.findOne({'_id': id}, (err, user)=> {
+    User.findOne({'_id': id}, (err, user:any)=> {
       if (err) {
         return done(err);
       }
@@ -24,7 +25,7 @@ export default function(passport) {
     }, (email, password, done)=> {
       User.findOne({
         'email': email
-      }, (err, user)=> {
+      }, (err, user: any)=> {
         if (err) {
           return done(err);
         }

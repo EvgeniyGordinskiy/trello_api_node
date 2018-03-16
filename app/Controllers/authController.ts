@@ -1,5 +1,6 @@
-import passport      from 'passport';
-import bcrypt        from 'bcrypt';
+import {Response, Request} from 'express';
+import passport  from 'passport';
+import bcrypt    from 'bcrypt';
 
 import _passport from '../passport/passport';
 _passport(passport);
@@ -7,19 +8,11 @@ _passport(passport);
 import User from '../models/user';
 import validations from '../helpers/validations';
 
-// let auth = {};
-
-// auth.getRegister = (req, res)=> {
-//   res.status(200);
-// };
-
-// export default auth;
-
 
 let auth = {
   // Render register page
-  getRegister(req, res) {
-    res.status(200);
+  getRegister(req: Request, res: Response) {
+    res.status(200).send();
   },
 
   /**
@@ -29,16 +22,16 @@ let auth = {
    * 3. Save user information in MongoDB
    * 4. Create a customer on Stripe with Free Plan
    **/
-  register(req, res) {
-    let name      = req.user.registerName;
-    let email     = req.user.registerEmail;
-    let password  = req.user.registerPassword;
+  register(req: Request, res: Response) {
+    let name      = req.query.registerName;
+    let email     = req.query.registerEmail;
+    let password  = req.query.registerPassword;
 
     if (name.trim().length === 0) {
       return res.status(400).send('Name cannot be empty');
     }
 
-    if (!validations.emailValidation(email)) {
+    if (!validations(email)) {
       return res.status(400)
       .send('Email cannot be empty & should be valid format');
     }
@@ -51,7 +44,7 @@ let auth = {
 
     User.findOne(
       {'email': email}
-      , (err0, user)=> {
+      , (err0, user: any)=> {
         if (err0) {
           return res.status(400).send('Error on finding user');
         }
@@ -89,37 +82,37 @@ let auth = {
   },
 
   // Render login page
-  getLogin(req, res) {
-    return res.stauts(200);
+  getLogin(req: Request, res: Response) {
+    return res.status(200);
   },
 
   /**
    * Handle user login process via Passport
    **/
-  login(req, res) {
-    let email    = req.user.loginEmail;
-    let password = req.user.loginPassword;
+  login(req: Request, res: Response) {
+    let email    = req.query.loginEmail;
+    let password = req.query.loginPassword;
 
-    if (!validations.emailValidation(email)) {
-      return res.stauts(400).send('Please enter the correct email');
+    if (!validations(email)) {
+      return res.status(400).send('Please enter the correct email');
     }
 
     if (password.trim().length < 8) {
-      return res.stauts(400).send('Please enter the correct password');
+      return res.status(400).send('Please enter the correct password');
     }
 
     passport.authenticate('local', (err0, user, info)=> {
       if (err0) {
-        return res.stauts(400).send('error', 'Cannot login. Try again.');
+        return res.status(400).send('Cannot login. Try again.');
       }
 
       if (!user) {
-        return res.stauts(400).send('User Not Found / Password is incorrect');
+        return res.status(400).send('User Not Found / Password is incorrect');
       }
 
       req.logIn(user, (err1)=> {
         if (err1) {
-          return res.stauts(400).send('Cannot login. Try again.');
+          return res.status(400).send('Cannot login. Try again.');
         }
         return res.status(200).send('Logged in');
       });
@@ -127,12 +120,12 @@ let auth = {
   },
 
   // Render Forgot Password page
-  getForgotPassword(req, res) {
+  getForgotPassword(req: Request, res: Response) {
     res.status(200);
   },
 
   // Logout
-  logout(req, res) {
+  logout(req: Request, res: Response) {
     req.logout();
     return res.status(200).send('You are logged out');
   }
